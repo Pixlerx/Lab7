@@ -4,7 +4,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
+import java.text.DateFormat;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import javax.swing.*;
 
 public class Main extends JFrame {
@@ -19,7 +23,7 @@ public class Main extends JFrame {
     private static final int MEDIUM_GAP = 10;
     private static final int LARGE_GAP = 15;
     private static final int SERVER_PORT = 4567;
-
+    private DialogFrame dialogFrame;
     private final JTextField textFieldFrom;
     private final JTextField textFieldTo;
     private final JTextArea textAreaIncoming;
@@ -109,7 +113,6 @@ public class Main extends JFrame {
                 .addGap(MEDIUM_GAP)
                 .addComponent(messagePanel)
                 .addContainerGap());
-
         // Создание и запуск потока-обработчика запросов
         new Thread(new Runnable() {
             @Override
@@ -128,6 +131,9 @@ public class Main extends JFrame {
                         socket.close();
                         // Выделяем IP-адрес
                         final String address = ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress();
+
+
+
                         // Выводим сообщение в текстовую область
                         textAreaIncoming.append(senderName + " (" + address + "): " + message + "\n");
                     }
@@ -141,11 +147,11 @@ public class Main extends JFrame {
 
     private void sendMessage() {
         try {
-// Получаем необходимые параметры
+            // Получаем необходимые параметры
             final String senderName = textFieldFrom.getText();
             final String destinationAddress = textFieldTo.getText();
             final String message = textAreaOutgoing.getText();
-// Убеждаемся, что поля не пустые
+            // Убеждаемся, что поля не пустые
             if (senderName.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
                         "Введите имя отправителя", "Ошибка",
@@ -194,5 +200,20 @@ public class Main extends JFrame {
                 frame.setVisible(true);
             }
         });
+    }
+
+    public int getServerPort() {
+        return SERVER_PORT;
+    }
+
+
+        public String getDateTime() {
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+            Date date = new Date();
+
+            return dateFormat.format(date);
+
     }
 }
