@@ -7,6 +7,8 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.net.*;
 import java.text.DateFormat;
+import java.text.Format;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import javax.swing.*;
@@ -28,7 +30,7 @@ public class Main extends JFrame {
     private final JTextField textFieldTo;
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
-
+    private ArrayList<User> UserInfo = new ArrayList<>(10);
     public Main() {
         super(FRAME_TITLE);
         setMinimumSize(new Dimension(FRAME_MINIMUM_WIDTH, FRAME_MINIMUM_HEIGHT));
@@ -130,10 +132,17 @@ public class Main extends JFrame {
                         // Закрываем соединение
                         socket.close();
                         // Выделяем IP-адрес
-                        final String address = ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress();
+                        String address = ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress();
 
-
-
+                        User users = new User(senderName,address);
+                        UserInfo.add(users);
+                        for(int i = 0;i < UserInfo.size();i++) {
+                            if()
+                            if (UserInfo.get(i).getAddres() != address) {
+                                dialogFrame = new DialogFrame(users, Main.this);
+                                break;
+                            }
+                        }
                         // Выводим сообщение в текстовую область
                         textAreaIncoming.append(senderName + " (" + address + "): " + message + "\n");
                     }
