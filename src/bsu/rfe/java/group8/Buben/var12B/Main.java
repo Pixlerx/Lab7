@@ -31,7 +31,9 @@ public class Main extends JFrame {
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
     private ArrayList<User> UserInfo = new ArrayList<>(10);
+    private boolean cheack = false;
     public Main() {
+
         super(FRAME_TITLE);
         setMinimumSize(new Dimension(FRAME_MINIMUM_WIDTH, FRAME_MINIMUM_HEIGHT));
         final Toolkit kit = Toolkit.getDefaultToolkit();
@@ -115,6 +117,8 @@ public class Main extends JFrame {
                 .addGap(MEDIUM_GAP)
                 .addComponent(messagePanel)
                 .addContainerGap());
+        User us = new User("Pixler",  "127.0.0.1");
+        UserInfo.add(us);
         // Создание и запуск потока-обработчика запросов
         new Thread(new Runnable() {
             @Override
@@ -129,22 +133,17 @@ public class Main extends JFrame {
                         final String senderName = in.readUTF();
                         // Читаем сообщение
                         final String message = in.readUTF();
+
                         // Закрываем соединение
                         socket.close();
                         // Выделяем IP-адрес
                         String address = ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress();
 
-                        User users = new User(senderName,address);
-                        UserInfo.add(users);
-                        for(int i = 0;i < UserInfo.size();i++) {
-                            if()
-                            if (UserInfo.get(i).getAddres() != address) {
-                                dialogFrame = new DialogFrame(users, Main.this);
-                                break;
-                            }
-                        }
+                        System.out.println(address + " - Адрес отправителя");
                         // Выводим сообщение в текстовую область
-                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "\n");
+                        if(cheack) {
+                            textAreaIncoming.append(senderName + " (" + address + "): " + message + "\n");
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -179,18 +178,35 @@ public class Main extends JFrame {
             }
             // Создаем сокет для соединения
             final Socket socket = new Socket(destinationAddress, SERVER_PORT);
+            System.out.println(destinationAddress + "- Адрес получателя");
             // Открываем поток вывода данных
             final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             // Записываем в поток имя
             out.writeUTF(senderName);
             // Записываем в поток сообщение
             out.writeUTF(message);
+            out.writeUTF(destinationAddress);
             // Закрываем сокет
             socket.close();
-            // Помещаем сообщения в текстовую область вывода
-            textAreaIncoming.append("Я -> " + destinationAddress + ": " + message + "\n");
-            // Очищаем текстовую область ввода сообщения
-            textAreaOutgoing.setText("");
+            cheack = false;
+            for(int i = 0;i < UserInfo.size();i++) {
+                if(UserInfo.get(i).getAddres().equals(destinationAddress))
+                {
+                    cheack = true;
+                }
+            }
+            User users = new User(senderName,  destinationAddress);
+            UserInfo.add(users);
+
+            if (cheack == false) {
+                dialogFrame = new DialogFrame(users, Main.this);
+                cheack = true;
+            }
+                // Помещаем сообщения в текстовую область вывода
+                textAreaIncoming.append("Я -> " + destinationAddress + ": " + message + "\n");
+                // Очищаем текстовую область ввода сообщения
+                textAreaOutgoing.setText("");
+
         } catch (UnknownHostException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(Main.this, "Не удалось отправить сообщение: узел-адресат не найден", "Ошибка", JOptionPane.ERROR_MESSAGE);
